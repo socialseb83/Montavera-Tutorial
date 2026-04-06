@@ -3,153 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Factions: Montavera - Rulebook Payload</title>
+    <title>Factions: Montavera</title>
     <style>
-        :root { --gold: #d4af37; --obsidian: #1a1a1a; --neon: #39ff14; --fire: #ff4500; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: white; overflow: hidden; touch-action: none; }
+        :root { --gold: #d4af37; --obsidian: #1a1a1a; }
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: #000; color: white; overflow: hidden;
+            font-family: -apple-system, system-ui, sans-serif;
+        }
         
-        #viewport { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; background-size: contain; background-repeat: no-repeat; background-position: center top; transition: 0.3s; background-color: #000; }
-        #card-display { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; margin-top: 20px; }
-        #card-img { max-height: 85%; max-width: 90%; box-shadow: 0 0 20px rgba(0,0,0,0.8); border-radius: 10px; }
+        #handshake { 
+            position: fixed; inset: 0; background: var(--obsidian); 
+            z-index: 1000; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; 
+        }
+        .sigil { 
+            width: 80px; height: 80px; border: 2px solid var(--gold); 
+            border-radius: 50%; color: var(--gold); font-size: 36px; 
+            display: flex; align-items: center; justify-content: center; 
+            margin-bottom: 20px; box-shadow: 0 0 20px rgba(212,175,55,0.4);
+        }
 
-        #ui-box { height: 45%; background: linear-gradient(to top, black 90%, transparent); padding: 20px; display: flex; flex-direction: column; box-sizing: border-box; z-index: 10; justify-content: flex-start; }
-        #dialogue { font-size: 16px; line-height: 1.4; border-left: 3px solid var(--gold); padding-left: 15px; margin-bottom: 15px; min-height: 100px; }
-        #choices { display: flex; flex-direction: column; gap: 10px; }
-        
-        button { background: rgba(255,255,255,0.08); border: 1px solid var(--gold); color: white; padding: 14px; border-radius: 5px; font-size: 14px; text-align: left; font-weight: 600; }
-        button:active { background: var(--gold); color: black; }
+        #game-container { 
+            display: none; height: 100vh; width: 100vw; 
+            flex-direction: column; 
+        }
 
-        /* Snapshot Transitions */
-        .flash { animation: flashW 0.6s ease-out; }
-        @keyframes flashW { 0% { filter: brightness(5); } 100% { filter: brightness(1); } }
+        /* Fixed area for cards so they don't push the UI down */
+        #visual-viewport { 
+            flex: 1.2; /* Takes up top portion */
+            display: flex; align-items: center; justify-content: center; 
+            padding: 10px; overflow: hidden;
+        }
+        #main-image { 
+            max-height: 100%; max-width: 100%; 
+            object-fit: contain; border-radius: 8px; 
+        }
 
-        /* Phone UI */
-        #handshake { position: fixed; inset: 0; background: var(--obsidian); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .sigil { width: 90px; height: 90px; border: 2px solid var(--gold); border-radius: 50%; color: var(--gold); font-size: 45px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px var(--gold); margin-bottom: 25px; }
-        .notif { position: absolute; top: 15px; width: 90%; left: 5%; background: white; color: #333; padding: 12px; border-radius: 12px; font-size: 13px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        /* Fixed area for Dialogue/Buttons */
+        #ui-layer { 
+            flex: 1; /* Takes up bottom portion */
+            background: linear-gradient(to top, #000 80%, transparent);
+            padding: 15px; display: flex; flex-direction: column;
+            box-sizing: border-box; justify-content: space-between;
+        }
+
+        #dialogue-box {
+            font-size: 16px; line-height: 1.4;
+            border-left: 3px solid var(--gold);
+            padding-left: 12px; margin-bottom: 10px;
+        }
+
+        #button-stack { 
+            display: flex; flex-direction: column; gap: 10px; 
+            padding-bottom: env(safe-area-inset-bottom); /* iOS specific */
+        }
+
+        button { 
+            background: rgba(255,255,255,0.1); border: 1px solid var(--gold);
+            color: white; padding: 15px; border-radius: 6px; 
+            font-size: 14px; text-transform: uppercase; font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-    <div id="handshake" onclick="startTutorial()">
+    <div id="handshake" onclick="launch()">
         <div class="sigil">M</div>
-        <p style="letter-spacing: 3px; font-size: 12px;">TOUCH TO ENTER</p>
+        <div style="color:var(--gold); letter-spacing:2px; font-size:12px;">TOUCH TO ENTER</div>
     </div>
 
-    <div id="viewport" style="display:none;">
-        <div id="card-display">
-            <div id="phone-notif" class="notif">
-                <strong>MOM:</strong> When are you coming home for dinner? Don't be late.
-            </div>
-            <img id="card-img" src="" alt="Factions Card">
+    <div id="game-container">
+        <div id="visual-viewport">
+            <img id="main-image" src="asimov.jpg">
         </div>
-        <div id="ui-box">
-            <div id="dialogue">
-                <strong id="speaker" style="color:var(--gold)">???</strong><br>
-                <span id="speech"></span>
+        <div id="ui-layer">
+            <div id="dialogue-box">
+                <strong id="name-label" style="color:var(--gold)">HEADMASTER</strong><br>
+                <span id="text-body">Loading...</span>
             </div>
-            <div id="choices"></div>
+            <div id="button-stack"></div>
         </div>
     </div>
 
     <script>
-        const state = { node: "start" };
-        const view = {
-            v: document.getElementById('viewport'),
-            img: document.getElementById('card-img'),
-            spk: document.getElementById('speaker'),
-            txt: document.getElementById('speech'),
-            btn: document.getElementById('choices'),
-            notif: document.getElementById('phone-notif')
-        };
-
-        const scenario = {
+        const nodes = {
             "start": {
-                card: "asimov.jpg", spk: "HEADMASTER",
-                txt: "So, the 'Chosen One' arrives with a pile of scrap metal. Asimov 200? You're either brave or illiterate.",
-                btns: [{ t: "Draw Hand", n: "intro_2" }]
+                img: "asimov.jpg",
+                speaker: "HEADMASTER",
+                text: "Citizen. You hold the Asimov deck. A pathetic choice. Let us see if you can even read your own cards.",
+                btns: [{ label: "Draw Hand", next: "step2" }]
             },
-            "intro_2": {
-                card: "asimov.jpg", spk: "BOY",
-                txt: "He's not scrap. He just... remembers things differently. I play Asimov to the Frontline.",
-                btns: [{ t: "Proceed to Action Phase", n: "jump_1" }]
+            "step2": {
+                img: "masternero.jpg",
+                speaker: "NARRATOR",
+                text: "--- 3 ROUNDS LATER ---\n\nThe Headmaster has deployed Master Nero. Your Plot Twists are locked. The air smells like burnt ozone.",
+                btns: [{ label: "Wait for Move", next: "step3" }]
             },
-            "jump_1": {
-                card: "masternero.jpg", spk: "NARRATOR",
-                txt: "--- 3 ROUNDS LATER ---\n\nThe Headmaster has deployed Master Nero. Your Plot Twists are locked. The air smells like burnt ozone.",
-                btns: [{ t: "Wait for Headmaster's move", n: "mom_interruption" }],
-                flash: true
+            "step3": {
+                img: "getoffyourphone.jpg",
+                speaker: "BOY",
+                text: "Your phone buzzes. You reply: 'Who are you, lady? My mom doesn't believe in dinner. She thinks its a government conspiracy.'",
+                btns: [{ label: "Hit Send", next: "step4" }]
             },
-            "mom_interruption": {
-                card: "masternero.jpg", spk: "SYSTEM",
-                txt: "*BUZZ* Your phone lights up. A distraction from the mortal world.",
-                btns: [{ t: "Check the text", n: "text_reply" }],
-                showNotif: true
+            "step4": {
+                img: "getoffyourphone.jpg",
+                speaker: "HEADMASTER",
+                text: "GOTCHA. Triggering PLOT TWIST: GET OFF YOUR PHONE. That's 16 words. Destroy 16 cards from your board and hand. Now.",
+                btns: [{ label: "Survive the wipe", next: "final" }]
             },
-            "text_reply": {
-                card: "getoffyourphone.jpg", spk: "BOY",
-                txt: "You reply: 'Who are you, lady? My mom doesn't believe in dinner. She thinks its a government conspiracy.'",
-                btns: [{ t: "Hit Send", n: "trap_sprung" }]
-            },
-            "trap_sprung": {
-                card: "getoffyourphone.jpg", spk: "HEADMASTER",
-                txt: "FOOL. You just played right into it. GET OFF YOUR PHONE triggers! I count 16 words. Destroy 16 cards from your board and hand. Now.",
-                btns: [{ t: "Watch the board melt", n: "jump_final" }]
-            },
-            "jump_final": {
-                card: "senor.jpg", spk: "NARRATOR",
-                txt: "--- 5 ROUNDS LATER ---\n\nYou're down to 1HP. The Headmaster is gloating. But you just drew Senor Lil Anthony.",
-                btns: [{ t: "Look at the 'Death Combo'", n: "climax" }],
-                flash: true
-            },
-            "climax": {
-                card: "senor.jpg", spk: "BOY",
-                txt: "If I place Anthony next to Asimov, Anthony's evil chickens force a roll of 1. And Asimov... Asimov never stops hurting if he rolls a 1.",
-                btns: [{ t: "Initiate Infinite Agony", n: "victory" }]
-            },
-            "victory": {
-                card: "xanthelilit.jpg", spk: "HEADMASTER",
-                txt: "Wait—No! My Sisters! The damage loop—it’s infinite! My board is dissolving! HOW?!",
-                btns: [{ t: "Accept his surrender", n: "end" }]
-            },
-            "end": {
-                card: "celestrix.jpg", spk: "NARRATOR",
-                txt: "The Headmaster stands silent. You've mastered the Rulebook. Montavera awaits.",
-                btns: [{ t: "RESTART TUTORIAL", n: "start" }]
+            "final": {
+                img: "senor.jpg",
+                speaker: "BOY",
+                text: "If I place Anthony next to Asimov, Anthony's evil chickens force a roll of 1. And Asimov... Asimov never stops hurting if he rolls a 1.",
+                btns: [{ label: "Initiate Infinite Agony", next: "start" }]
             }
         };
 
-        function startTutorial() {
+        function launch() {
             document.getElementById('handshake').style.display = 'none';
-            view.v.style.display = 'flex';
-            render("start");
+            document.getElementById('game-container').style.display = 'flex';
+            renderNode("start");
         }
 
-        function render(id) {
-            const n = scenario[id];
-            view.img.src = n.card;
-            view.spk.innerText = n.spk;
-            view.txt.innerText = n.txt;
-            view.btn.innerHTML = "";
+        function renderNode(id) {
+            const data = nodes[id];
+            document.getElementById('main-image').src = data.img;
+            document.getElementById('name-label').innerText = data.speaker;
+            document.getElementById('text-body').innerText = data.text;
             
-            view.notif.style.display = n.showNotif ? "block" : "none";
+            const stack = document.getElementById('button-stack');
+            stack.innerHTML = "";
             
-            if (n.flash) {
-                view.v.classList.remove('flash');
-                void view.v.offsetWidth; // Trigger reflow
-                view.v.classList.add('flash');
-            }
-
-            n.btns.forEach(b => {
-                const button = document.createElement('button');
-                button.innerText = b.t;
-                button.onclick = () => render(b.n);
-                view.btn.appendChild(button);
+            data.btns.forEach(b => {
+                const btn = document.createElement('button');
+                btn.innerText = b.label;
+                btn.onclick = () => renderNode(b.next);
+                stack.appendChild(btn);
             });
         }
-
-        // Prevent iOS bounce
-        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
     </script>
 </body>
 </html>
