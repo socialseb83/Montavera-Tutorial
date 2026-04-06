@@ -2,144 +2,157 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Factions: Montavera</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Montavera Rulebook</title>
     <style>
-        :root { --gold: #d4af37; --obsidian: #1a1a1a; }
+        :root { --gold: #d4af37; --bg: #0a0a0a; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: #000; color: white; overflow: hidden;
-            font-family: -apple-system, system-ui, sans-serif;
-        }
-        
-        #handshake { 
-            position: fixed; inset: 0; background: var(--obsidian); 
-            z-index: 1000; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; 
-        }
-        .sigil { 
-            width: 80px; height: 80px; border: 2px solid var(--gold); 
-            border-radius: 50%; color: var(--gold); font-size: 36px; 
-            display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 20px; box-shadow: 0 0 20px rgba(212,175,55,0.4);
+            background: black; color: white; overflow: hidden;
+            font-family: -apple-system, Helvetica, Arial, sans-serif;
         }
 
-        #game-container { 
-            display: none; height: 100vh; width: 100vw; 
-            flex-direction: column; 
+        /* The "Handshake" Screen */
+        #handshake {
+            position: fixed; inset: 0; background: #111;
+            z-index: 9999; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+        .sigil {
+            width: 90px; height: 90px; border: 3px solid var(--gold);
+            border-radius: 50%; color: var(--gold); font-size: 40px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px; box-shadow: 0 0 25px rgba(212,175,55,0.4);
         }
 
-        /* Fixed area for cards so they don't push the UI down */
-        #visual-viewport { 
-            flex: 1.2; /* Takes up top portion */
-            display: flex; align-items: center; justify-content: center; 
-            padding: 10px; overflow: hidden;
-        }
-        #main-image { 
-            max-height: 100%; max-width: 100%; 
-            object-fit: contain; border-radius: 8px; 
+        /* The Main Layout - Split Screen */
+        #game-interface {
+            display: none; /* Hidden until handshake */
+            height: 100vh; width: 100vw;
+            flex-direction: column;
         }
 
-        /* Fixed area for Dialogue/Buttons */
-        #ui-layer { 
-            flex: 1; /* Takes up bottom portion */
-            background: linear-gradient(to top, #000 80%, transparent);
-            padding: 15px; display: flex; flex-direction: column;
-            box-sizing: border-box; justify-content: space-between;
+        /* Top Half: The Card Art */
+        #top-half {
+            height: 55vh; 
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px; background: #000;
+        }
+        #top-half img {
+            max-height: 100%; max-width: 100%;
+            object-fit: contain; border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,1);
         }
 
-        #dialogue-box {
-            font-size: 16px; line-height: 1.4;
+        /* Bottom Half: UI & Text */
+        #bottom-half {
+            height: 45vh;
+            background: linear-gradient(to top, #111 85%, #000);
+            padding: 20px; padding-bottom: 40px; /* Space for home bar */
+            display: flex; flex-direction: column;
+            justify-content: space-between;
+        }
+
+        #text-container {
             border-left: 3px solid var(--gold);
-            padding-left: 12px; margin-bottom: 10px;
+            padding-left: 15px;
         }
 
-        #button-stack { 
-            display: flex; flex-direction: column; gap: 10px; 
-            padding-bottom: env(safe-area-inset-bottom); /* iOS specific */
+        #speaker-name {
+            color: var(--gold); font-weight: bold;
+            font-size: 14px; text-transform: uppercase;
+            letter-spacing: 1px; display: block; margin-bottom: 5px;
         }
 
-        button { 
-            background: rgba(255,255,255,0.1); border: 1px solid var(--gold);
-            color: white; padding: 15px; border-radius: 6px; 
-            font-size: 14px; text-transform: uppercase; font-weight: bold;
+        #dialogue-text {
+            font-size: 17px; line-height: 1.4; color: #eee;
         }
+
+        #button-area {
+            display: flex; flex-direction: column; gap: 12px;
+        }
+
+        button {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid var(--gold);
+            color: white; padding: 16px; border-radius: 8px;
+            font-size: 15px; font-weight: 600; text-align: center;
+        }
+        button:active { background: var(--gold); color: black; }
     </style>
 </head>
 <body>
 
-    <div id="handshake" onclick="launch()">
+    <div id="handshake" onclick="enterShrine()">
         <div class="sigil">M</div>
-        <div style="color:var(--gold); letter-spacing:2px; font-size:12px;">TOUCH TO ENTER</div>
+        <div style="color:var(--gold); font-size:12px; letter-spacing:2px;">TOUCH TO ENTER</div>
     </div>
 
-    <div id="game-container">
-        <div id="visual-viewport">
-            <img id="main-image" src="asimov.jpg">
+    <div id="game-interface">
+        <div id="top-half">
+            <img id="display-card" src="asimov.jpg">
         </div>
-        <div id="ui-layer">
-            <div id="dialogue-box">
-                <strong id="name-label" style="color:var(--gold)">HEADMASTER</strong><br>
-                <span id="text-body">Loading...</span>
+        <div id="bottom-half">
+            <div id="text-container">
+                <span id="speaker-name">HEADMASTER</span>
+                <div id="dialogue-text">Loading deck...</div>
             </div>
-            <div id="button-stack"></div>
+            <div id="button-area">
+                </div>
         </div>
     </div>
 
     <script>
-        const nodes = {
-            "start": {
-                img: "asimov.jpg",
-                speaker: "HEADMASTER",
-                text: "Citizen. You hold the Asimov deck. A pathetic choice. Let us see if you can even read your own cards.",
-                btns: [{ label: "Draw Hand", next: "step2" }]
+        const story = {
+            "node1": {
+                img: "asimov.jpg", name: "HEADMASTER",
+                msg: "Citizen. You hold the Asimov deck. A pathetic choice. Let's see if you can even read your own cards.",
+                btns: [{ label: "Draw Hand", next: "node2" }]
             },
-            "step2": {
-                img: "masternero.jpg",
-                speaker: "NARRATOR",
-                text: "--- 3 ROUNDS LATER ---\n\nThe Headmaster has deployed Master Nero. Your Plot Twists are locked. The air smells like burnt ozone.",
-                btns: [{ label: "Wait for Move", next: "step3" }]
+            "node2": {
+                img: "masternero.jpg", name: "NARRATOR",
+                msg: "--- 3 ROUNDS LATER ---\n\nThe Headmaster has deployed Master Nero. Your Plot Twists are locked.",
+                btns: [{ label: "Wait for Move", next: "node3" }]
             },
-            "step3": {
-                img: "getoffyourphone.jpg",
-                speaker: "BOY",
-                text: "Your phone buzzes. You reply: 'Who are you, lady? My mom doesn't believe in dinner. She thinks its a government conspiracy.'",
-                btns: [{ label: "Hit Send", next: "step4" }]
+            "node3": {
+                img: "getoffyourphone.jpg", name: "BOY",
+                msg: "Your phone buzzes. You reply: 'Who are you, lady? My mom doesn't believe in dinner. She thinks its a government conspiracy.'",
+                btns: [{ label: "Hit Send", next: "node4" }]
             },
-            "step4": {
-                img: "getoffyourphone.jpg",
-                speaker: "HEADMASTER",
-                text: "GOTCHA. Triggering PLOT TWIST: GET OFF YOUR PHONE. That's 16 words. Destroy 16 cards from your board and hand. Now.",
-                btns: [{ label: "Survive the wipe", next: "final" }]
+            "node4": {
+                img: "getoffyourphone.jpg", name: "HEADMASTER",
+                msg: "GOTCHA! Triggering GET OFF YOUR PHONE. That's 16 words. Destroy 16 cards from your board and hand. Now.",
+                btns: [{ label: "Watch the wipe", next: "node5" }]
             },
-            "final": {
-                img: "senor.jpg",
-                speaker: "BOY",
-                text: "If I place Anthony next to Asimov, Anthony's evil chickens force a roll of 1. And Asimov... Asimov never stops hurting if he rolls a 1.",
-                btns: [{ label: "Initiate Infinite Agony", next: "start" }]
+            "node5": {
+                img: "senor.jpg", name: "BOY",
+                msg: "If I place Anthony next to Asimov, Anthony's chickens force a roll of 1. Asimov never stops hurting if he rolls a 1. The infinite loop...",
+                btns: [{ label: "Initiate Infinite Agony", next: "node1" }]
             }
         };
 
-        function launch() {
+        function enterShrine() {
             document.getElementById('handshake').style.display = 'none';
-            document.getElementById('game-container').style.display = 'flex';
-            renderNode("start");
+            document.getElementById('game-interface').style.display = 'flex';
+            updateNode("node1");
         }
 
-        function renderNode(id) {
-            const data = nodes[id];
-            document.getElementById('main-image').src = data.img;
-            document.getElementById('name-label').innerText = data.speaker;
-            document.getElementById('text-body').innerText = data.text;
+        function updateNode(id) {
+            const data = story[id];
+            document.getElementById('display-card').src = data.img;
+            document.getElementById('speaker-name').innerText = data.name;
+            document.getElementById('dialogue-text').innerText = data.msg;
             
-            const stack = document.getElementById('button-stack');
-            stack.innerHTML = "";
+            const btnArea = document.getElementById('button-area');
+            btnArea.innerHTML = "";
             
-            data.btns.forEach(b => {
-                const btn = document.createElement('button');
-                btn.innerText = b.label;
-                btn.onclick = () => renderNode(b.next);
-                stack.appendChild(btn);
+            data.btns.forEach(btn => {
+                const b = document.createElement('button');
+                b.innerText = btn.label;
+                b.onclick = () => updateNode(btn.next);
+                btnArea.appendChild(b);
             });
         }
     </script>
